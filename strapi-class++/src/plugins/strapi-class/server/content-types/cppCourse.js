@@ -25,10 +25,25 @@ module.exports = {
       required: true,
       configurable: false,
     },
-
+    summary: {
+      type: "text",
+      maxLength: 1000,
+      required: true,
+      configurable: false,
+    },
     description: {
-      type: "string",
-      maxLength: 3000,
+      type: "richtext",
+      maxLength: 10000,
+      required: true,
+      configurable: false,
+    },
+    image: {
+      type: "media",
+      required: true,
+      configurable: false,
+    },
+    video: {
+      type: "media",
       configurable: false,
     },
     lesson: {

@@ -21,32 +21,32 @@ module.exports = {
   attributes: {
     title: {
       type: "string",
-      maxLength: 250,
+      maxLength: 500,
       required: true,
       configurable: false,
     },
-
-    lessonText: {
-      type: "string",
-      maxLength: 8000,
+    description: {
+      type: "richtext",
+      maxLength: 5000,
+      required: true,
       configurable: false,
     },
-    lessonVideo: {
+    video: {
       type: "media",
-      maxLength: 256000,
+      required: true,
       configurable: false,
     },
     readingMaterial: {
       type: "media",
-      maxLength: 2048,
+      required: true,
       configurable: false,
     },
-
     course: {
       type: "relation",
       relation: "manyToOne",
       target: "plugin::strapi-class.cpp-course",
       inversedBy: "lesson",
+      required: true,
       configurable: false,
     },
   },

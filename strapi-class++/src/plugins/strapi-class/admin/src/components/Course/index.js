@@ -1,13 +1,22 @@
 import React, { useState } from "react";
+import { useRouteMatch } from "react-router-dom";
 import { Box } from "@strapi/design-system/Box";
 import { Typography } from "@strapi/design-system/Typography";
 import { Divider } from "@strapi/design-system/Divider";
 import { Flex } from "@strapi/design-system/Flex";
 import { Button } from "@strapi/design-system/Button";
+import { LinkButton } from "@strapi/design-system/LinkButton";
+import Plus from "@strapi/icons/Plus";
 import CourseCreateModal from "./courseCreateModal";
+import CourseTable from "./courseTable";
+import { createCourse, updateCourse, uploadFiles } from "../../utils/apiCalls";
+import CourseEditModal from "./courseEditModal";
 
 const Course = () => {
+  const { url } = useRouteMatch();
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [isEditCourseModal, setIsEditCourseModal] = useState(false);
+  const [courseId, setCourseId] = useState("");
 
   // course create modal Close
   const handleCloseCreateModal = () => setIsCreateModalVisible((prev) => !prev);
@@ -15,6 +24,32 @@ const Course = () => {
   // Course Create api Call
   const handleCreateCourse = () => {
     setIsCreateModalVisible((prev) => !prev);
+  };
+
+  const handleCourseEditModal = (id) => {
+    setCourseId(id);
+    setIsEditCourseModal((prev) => !prev);
+  };
+
+  const handleCloseEditModal = () => setIsEditCourseModal((prev) => !prev);
+
+  const handleUpdateCourse = async (
+    courseId,
+    title,
+    summary,
+    description,
+    files
+  ) => {
+    const response = await updateCourse(
+      courseId,
+      title,
+      summary,
+      description,
+      files
+    );
+    if (response.data?.id) {
+      setIsEditCourseModal((prev) => !prev);
+    }
   };
 
   return (
@@ -38,9 +73,36 @@ const Course = () => {
         <CourseCreateModal
           isVisible={isCreateModalVisible}
           handleClose={handleCloseCreateModal}
-          handleClickSave={handleCreateCourse}
+          handleClickSave={(
+            title,
+            summary,
+            description,
+            courseImage,
+            courseVideo
+          ) =>
+            handleCreateCourse(
+              title,
+              summary,
+              description,
+              courseImage,
+              courseVideo
+            )
+          }
         />
       </Flex>
+      <CourseTable
+        isVisible={isCreateModalVisible}
+        isEditVisible={isEditCourseModal}
+        handleCourseEdit={(id) => handleCourseEditModal(id)}
+      />
+      <CourseEditModal
+        courseId={courseId}
+        isVisible={isEditCourseModal}
+        handleClose={handleCloseEditModal}
+        handleClickUpdate={(courseId, title, summary, description, files) =>
+          handleUpdateCourse(courseId, title, summary, description, files)
+        }
+      />
     </>
   );
 };

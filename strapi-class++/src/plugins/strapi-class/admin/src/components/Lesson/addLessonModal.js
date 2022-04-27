@@ -9,26 +9,21 @@ import { Typography } from "@strapi/design-system/Typography";
 import { Button } from "@strapi/design-system/Button";
 import { Grid, GridItem } from "@strapi/design-system/Grid";
 import { TextInput } from "@strapi/design-system/TextInput";
-import { Textarea } from "@strapi/design-system/Textarea";
 import { Box } from "@strapi/design-system/Box";
-import { Loader } from "@strapi/design-system/Loader";
-import { Flex } from "@strapi/design-system/Flex";
 import Editor from "../Editor";
-import { createCourse, uploadFiles } from "../../utils/apiCalls";
 
-const CourseCreateModal = ({ isVisible, handleClose, handleClickSave }) => {
+const AddLessonModal = ({
+  isVisible,
+  handleCloseAddLessonModal,
+  handleClickAddLesson,
+}) => {
   const [title, setTitle] = useState("");
-  const [summary, setSummary] = useState("");
   const [description, setDescription] = useState("");
-  const [courseVideo, setCourseVideo] = useState([]);
-  const [courseImage, setCourseImage] = useState([]);
-  const [upload, setUpload] = useState(false);
-  const [uploadMessage, setUploadMessage] = useState("");
-
+  const [readingMaterial, setReadingMaterial] = useState("");
+  const [lessonVideo, setLessonVideo] = useState("");
   const [error, setError] = useState({
     title: "",
     description: "",
-    summary: "",
   });
 
   const handleChange = (event) => {
@@ -36,13 +31,10 @@ const CourseCreateModal = ({ isVisible, handleClose, handleClickSave }) => {
     if (name === "title") {
       setTitle(value);
       setError({ ...error, title: "" });
-    } else if (name === "summary") {
-      setSummary(value);
-      setError({ ...error, summary: "" });
-    } else if (name === "courseImage") {
-      setCourseImage(event.target.files);
-    } else if (name === "courseVideo") {
-      setCourseVideo(event.target.files);
+    } else if (name === "readingMaterial") {
+      setReadingMaterial(event.target.files);
+    } else if (name === "lessonVideo") {
+      setLessonVideo(event.target.files);
     }
   };
 
@@ -51,76 +43,38 @@ const CourseCreateModal = ({ isVisible, handleClose, handleClickSave }) => {
     setError({ ...error, description: "" });
   };
 
-  const handleSaveCourse = async () => {
-    if (!title && !summary && !description) {
+  const handleAddLesson = () => {
+    if (!title && !description) {
       setError({
         ...error,
         title: "Title is required",
-        summary: "Summary is required",
         description: "Description is required",
       });
     } else if (!title) {
       setError({
         ...error,
         title: "Title is required",
-        summary: "",
-        description: "",
-      });
-    } else if (!summary) {
-      setError({
-        ...error,
-        title: "",
-        summary: "Summary is required",
         description: "",
       });
     } else if (!description) {
       setError({
         ...error,
         title: "",
-        summary: "",
         description: "Description is required",
       });
     } else {
-      let imageId, videoId;
-      if (courseImage.length > 0) {
-        setUpload(true);
-        setUploadMessage("Uploading course image");
-        const response = await uploadFiles(courseImage);
-        imageId = response.data[0].id;
-      }
-      if (courseVideo.length > 0) {
-        setUpload(true);
-        setUploadMessage("Uploading course video");
-        const response = await uploadFiles(courseVideo);
-        videoId = response.data[0].id;
-      }
-
-      const response = await createCourse(
-        title,
-        summary,
-        description,
-        imageId,
-        videoId
-      );
-      if (response?.data?.id) {
-        setUpload(false);
-        setUploadMessage("");
-        setTitle("");
-        setSummary("");
-        setDescription("");
-        setCourseVideo("");
-        setCourseImage("");
-
-        // call to close modal
-        handleClickSave();
-      }
+      // handleClickAddLesson()
+      // setTitle("");
+      // setSummary("");
+      // setDescription("");
+      // setFiles("");
     }
   };
 
   return (
     <>
       {isVisible && (
-        <ModalLayout onClose={handleClose} labelledBy="title">
+        <ModalLayout onClose={handleCloseAddLessonModal} labelledBy="title">
           <ModalHeader>
             <Typography
               fontWeight="bold"
@@ -128,32 +82,20 @@ const CourseCreateModal = ({ isVisible, handleClose, handleClickSave }) => {
               as="h2"
               id="title"
             >
-              Create Course
+              Add Lesson
             </Typography>
           </ModalHeader>
           <ModalBody>
             <Grid gap={5}>
               <GridItem col={12}>
                 <TextInput
-                  placeholder="Title of the Course"
+                  placeholder="Title of the Lesson"
                   label="Title"
                   name="title"
                   onChange={handleChange}
                   error={error.title ? error.title : ""}
                   required
                 />
-              </GridItem>
-              <GridItem col={12}>
-                <Textarea
-                  placeholder="summary of the course"
-                  label="Course Summary"
-                  name="summary"
-                  onChange={handleChange}
-                  error={error.summary ? error.summary : ""}
-                  required
-                >
-                  {summary}
-                </Textarea>
               </GridItem>
               <GridItem col={12}>
                 <Typography variant="pi" fontWeight="bold">
@@ -174,27 +116,24 @@ const CourseCreateModal = ({ isVisible, handleClose, handleClickSave }) => {
               </GridItem>
               <GridItem col={6}>
                 <Typography variant="pi" fontWeight="bold">
-                  Course Image&nbsp;(optional)
+                  Reading Materials
                 </Typography>
-
                 <Box paddingTop={3}>
                   <input
                     type="file"
-                    name="courseImage"
+                    name="readingMaterial"
                     onChange={handleChange}
-                    accept="image/png, image/jpeg,image/svg,image/webp,image/gif"
                   />
                 </Box>
               </GridItem>
               <GridItem col={6}>
                 <Typography variant="pi" fontWeight="bold">
-                  Course Video&nbsp;(optional)
+                  Video
                 </Typography>
-
                 <Box paddingTop={3}>
                   <input
                     type="file"
-                    name="courseVideo"
+                    name="lessonVideo"
                     onChange={handleChange}
                   />
                 </Box>
@@ -203,21 +142,14 @@ const CourseCreateModal = ({ isVisible, handleClose, handleClickSave }) => {
           </ModalBody>
           <ModalFooter
             startActions={
-              <Button onClick={handleClose} variant="tertiary">
+              <Button onClick={handleCloseAddLessonModal} variant="tertiary">
                 Cancel
               </Button>
             }
             endActions={
-              upload ? (
-                <Flex justifyContent="center">
-                  <Loader small>Loading......</Loader>
-                  <Typography fontWeight="bold" textColor="primary600" as="h2">
-                    {uploadMessage ? uploadMessage : ""}
-                  </Typography>
-                </Flex>
-              ) : (
-                <Button onClick={handleSaveCourse}>Save</Button>
-              )
+              <>
+                <Button onClick={() => handleAddLesson}>Save</Button>
+              </>
             }
           />
         </ModalLayout>
@@ -226,4 +158,4 @@ const CourseCreateModal = ({ isVisible, handleClose, handleClickSave }) => {
   );
 };
 
-export default CourseCreateModal;
+export default AddLessonModal;

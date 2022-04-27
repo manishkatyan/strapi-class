@@ -4,7 +4,7 @@
  *
  */
 
-import React, { memo } from "react";
+import React from "react";
 // import PropTypes from 'prop-types';
 import pluginId from "../../pluginId";
 import Course from "../../components/Course";
@@ -17,4 +17,4 @@ const HomePage = () => {
   );
 };
 
-export default memo(HomePage);
+export default HomePage;
