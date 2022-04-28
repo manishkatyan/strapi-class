@@ -33,23 +33,8 @@ const Course = () => {
 
   const handleCloseEditModal = () => setIsEditCourseModal((prev) => !prev);
 
-  const handleUpdateCourse = async (
-    courseId,
-    title,
-    summary,
-    description,
-    files
-  ) => {
-    const response = await updateCourse(
-      courseId,
-      title,
-      summary,
-      description,
-      files
-    );
-    if (response.data?.id) {
-      setIsEditCourseModal((prev) => !prev);
-    }
+  const handleUpdateCourse = () => {
+    setIsEditCourseModal((prev) => !prev);
   };
 
   return (
@@ -99,9 +84,7 @@ const Course = () => {
         courseId={courseId}
         isVisible={isEditCourseModal}
         handleClose={handleCloseEditModal}
-        handleClickUpdate={(courseId, title, summary, description, files) =>
-          handleUpdateCourse(courseId, title, summary, description, files)
-        }
+        handleClickUpdate={handleUpdateCourse}
       />
     </>
   );

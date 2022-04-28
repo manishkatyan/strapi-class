@@ -51,17 +51,41 @@ module.exports = ({ strapi }) => ({
   updateCourse: async (ctx) => {
     const { id, title, summary, description, imageId, videoId } =
       ctx.request.body;
+    let updateData;
+    if (imageId && videoId) {
+      updateData = {
+        title,
+        summary,
+        description,
+        image: imageId,
+        video: videoId,
+      };
+    } else if (imageId) {
+      updateData = {
+        title,
+        summary,
+        description,
+        image: imageId,
+      };
+    } else if (videoId) {
+      updateData = {
+        title,
+        summary,
+        description,
+        video: videoId,
+      };
+    } else {
+      updateData = {
+        title,
+        summary,
+        description,
+      };
+    }
     const response = await strapi
       .query("plugin::strapi-class.cpp-course")
       .update({
         where: { id: id },
-        data: {
-          title,
-          summary,
-          description,
-          image: imageId,
-          video: videoId,
-        },
+        data: updateData,
       });
     ctx.body = response;
   },

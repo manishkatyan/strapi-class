@@ -31,12 +31,11 @@ module.exports = {
       required: true,
       configurable: false,
     },
-    video: {
+    readingMaterial: {
       type: "media",
-      required: true,
       configurable: false,
     },
-    readingMaterial: {
+    video: {
       type: "media",
       required: true,
       configurable: false,

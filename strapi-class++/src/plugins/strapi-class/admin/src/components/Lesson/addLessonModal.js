@@ -10,20 +10,27 @@ import { Button } from "@strapi/design-system/Button";
 import { Grid, GridItem } from "@strapi/design-system/Grid";
 import { TextInput } from "@strapi/design-system/TextInput";
 import { Box } from "@strapi/design-system/Box";
+import { Loader } from "@strapi/design-system/Loader";
+import { Flex } from "@strapi/design-system/Flex";
+import { addLesson, uploadFiles } from "../../utils/apiCalls";
 import Editor from "../Editor";
 
 const AddLessonModal = ({
+  courseId,
   isVisible,
   handleCloseAddLessonModal,
   handleClickAddLesson,
 }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [readingMaterial, setReadingMaterial] = useState("");
-  const [lessonVideo, setLessonVideo] = useState("");
+  const [readingMaterial, setReadingMaterial] = useState([]);
+  const [lessonVideo, setLessonVideo] = useState([]);
+  const [upload, setUpload] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState("");
   const [error, setError] = useState({
     title: "",
     description: "",
+    lessonVideo: "",
   });
 
   const handleChange = (event) => {
@@ -35,6 +42,7 @@ const AddLessonModal = ({
       setReadingMaterial(event.target.files);
     } else if (name === "lessonVideo") {
       setLessonVideo(event.target.files);
+      setError({ ...error, lessonVideo: "" });
     }
   };
 
@@ -43,31 +51,67 @@ const AddLessonModal = ({
     setError({ ...error, description: "" });
   };
 
-  const handleAddLesson = () => {
-    if (!title && !description) {
+  const handleAddLesson = async () => {
+    if (!title && !description && lessonVideo.length === 0) {
       setError({
         ...error,
         title: "Title is required",
         description: "Description is required",
+        lessonVideo: "Video is required",
       });
     } else if (!title) {
       setError({
         ...error,
         title: "Title is required",
         description: "",
+        lessonVideo: "",
       });
     } else if (!description) {
       setError({
         ...error,
         title: "",
         description: "Description is required",
+        lessonVideo: "",
+      });
+    } else if (lessonVideo?.length === 0) {
+      setError({
+        ...error,
+        title: "",
+        description: "",
+        lessonVideo: "Video is required",
       });
     } else {
-      // handleClickAddLesson()
-      // setTitle("");
-      // setSummary("");
-      // setDescription("");
-      // setFiles("");
+      let materialId, videoId;
+      if (readingMaterial.length > 0) {
+        setUpload(true);
+        setUploadMessage("Uploading reading material");
+        const response = await uploadFiles(readingMaterial);
+        materialId = response.data[0].id;
+      }
+      if (lessonVideo.length > 0) {
+        setUpload(true);
+        setUploadMessage("Uploading lesson video ");
+        const response = await uploadFiles(lessonVideo);
+        videoId = response.data[0].id;
+      }
+
+      const response = await addLesson(
+        courseId,
+        title,
+        description,
+        materialId,
+        videoId
+      );
+      if (response?.data?.id) {
+        setUpload(false);
+        setUploadMessage("");
+        setTitle("");
+        setReadingMaterial("");
+        setLessonVideo("");
+
+        // call to close modal
+        handleClickAddLesson();
+      }
     }
   };
 
@@ -122,6 +166,7 @@ const AddLessonModal = ({
                   <input
                     type="file"
                     name="readingMaterial"
+                    accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf"
                     onChange={handleChange}
                   />
                 </Box>
@@ -134,9 +179,17 @@ const AddLessonModal = ({
                   <input
                     type="file"
                     name="lessonVideo"
+                    accept="video/*"
                     onChange={handleChange}
                   />
                 </Box>
+                {error.lessonVideo ? (
+                  <Typography variant="pi" textColor="danger700">
+                    {error.lessonVideo}
+                  </Typography>
+                ) : (
+                  ""
+                )}
               </GridItem>
             </Grid>
           </ModalBody>
@@ -147,9 +200,16 @@ const AddLessonModal = ({
               </Button>
             }
             endActions={
-              <>
-                <Button onClick={() => handleAddLesson}>Save</Button>
-              </>
+              upload ? (
+                <Flex justifyContent="center">
+                  <Loader small>Loading......</Loader>
+                  <Typography fontWeight="bold" textColor="primary600" as="h2">
+                    {uploadMessage ? uploadMessage : ""}
+                  </Typography>
+                </Flex>
+              ) : (
+                <Button onClick={handleAddLesson}>Save</Button>
+              )
             }
           />
         </ModalLayout>

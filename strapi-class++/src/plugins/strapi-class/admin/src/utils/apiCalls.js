@@ -30,13 +30,21 @@ export async function getSingleCourse(id) {
   return response;
 }
 
-export async function updateCourse(id, title, summary, description, files) {
+export async function updateCourse(
+  id,
+  title,
+  summary,
+  description,
+  imageId,
+  videoId
+) {
   const response = await axios.put(`/strapi-class/updateCourse`, {
     id,
     title,
     summary,
     description,
-    files,
+    imageId,
+    videoId,
   });
   return response;
 }
@@ -52,5 +60,44 @@ export async function uploadFiles(files) {
   const formDocument = new FormData();
   formDocument.append("files", files[0]);
   const response = await axios.post(`/upload`, formDocument);
+  return response;
+}
+
+export async function addLesson(
+  courseId,
+  title,
+  description,
+  materialId,
+  videoId
+) {
+  const response = await axios.post("/strapi-class/addLesson", {
+    courseId,
+    title,
+    description,
+    materialId,
+    videoId,
+  });
+  return response;
+}
+
+export async function getLessonEdit(lessonId) {
+  const response = await axios.get(`/strapi-class/getSingleLesson/${lessonId}`);
+  return response;
+}
+
+export async function updateLesson(
+  id,
+  title,
+  description,
+  materialId,
+  videoId
+) {
+  const response = await axios.put(`/strapi-class/updateLesson`, {
+    id,
+    title,
+    description,
+    materialId,
+    videoId,
+  });
   return response;
 }

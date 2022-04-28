@@ -182,7 +182,7 @@ const CourseCreateModal = ({ isVisible, handleClose, handleClickSave }) => {
                     type="file"
                     name="courseImage"
                     onChange={handleChange}
-                    accept="image/png, image/jpeg,image/svg,image/webp,image/gif"
+                    accept="image/*"
                   />
                 </Box>
               </GridItem>
@@ -196,6 +196,7 @@ const CourseCreateModal = ({ isVisible, handleClose, handleClickSave }) => {
                     type="file"
                     name="courseVideo"
                     onChange={handleChange}
+                    accept="video/*"
                   />
                 </Box>
               </GridItem>
@@ -203,7 +204,11 @@ const CourseCreateModal = ({ isVisible, handleClose, handleClickSave }) => {
           </ModalBody>
           <ModalFooter
             startActions={
-              <Button onClick={handleClose} variant="tertiary">
+              <Button
+                onClick={handleClose}
+                variant="tertiary"
+                disabled={upload}
+              >
                 Cancel
               </Button>
             }

@@ -47,4 +47,28 @@ module.exports = [
       auth: false,
     },
   },
+  {
+    method: "POST",
+    path: "/addLesson",
+    handler: "lessonController.addLesson",
+    config: {
+      auth: false,
+    },
+  },
+  {
+    method: "GET",
+    path: "/getSingleLesson/:lessonId",
+    handler: "lessonController.getSingleLesson",
+    config: {
+      auth: false,
+    },
+  },
+  {
+    method: "PUT",
+    path: "/updateLesson",
+    handler: "lessonController.updateLesson",
+    config: {
+      auth: false,
+    },
+  },
 ];

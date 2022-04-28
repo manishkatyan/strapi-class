@@ -18,9 +18,16 @@ const Lessons = () => {
 
   const [isAddLessonModal, setIsAddLessonModal] = useState(false);
   const [isEditLessonModal, setIsEditLessonModal] = useState(false);
+  const [lessonId, setLessonId] = useState("");
 
   const handleCloseModal = () => setIsAddLessonModal((prev) => !prev);
   const handleCloseEditModal = () => setIsEditLessonModal((prev) => !prev);
+  const handleAddLesson = () => setIsAddLessonModal((prev) => !prev);
+  const handleLessonEditModal = (id) => {
+    setLessonId(id);
+    setIsEditLessonModal((prev) => !prev);
+  };
+  const handleUpdateLesson = () => setIsEditLessonModal((prev) => !prev);
 
   return (
     <>
@@ -50,14 +57,23 @@ const Lessons = () => {
         </Button>
       </Flex>
       <AddLessonModal
+        courseId={courseId}
         isVisible={isAddLessonModal}
         handleCloseAddLessonModal={handleCloseModal}
+        handleClickAddLesson={handleAddLesson}
       />
       <EditLessonModal
+        lessonId={lessonId}
         isEditVisible={isEditLessonModal}
         handleCloseEditLessonModal={handleCloseEditModal}
+        handleClickUpdateLesson={handleUpdateLesson}
       />
-      <LessonTable id={courseId} />
+      <LessonTable
+        id={courseId}
+        isVisible={isAddLessonModal}
+        isEditVisible={isEditLessonModal}
+        handleLessonEdit={(lessonId) => handleLessonEditModal(lessonId)}
+      />
     </>
   );
 };

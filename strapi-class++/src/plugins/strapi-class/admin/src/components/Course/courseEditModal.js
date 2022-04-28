@@ -11,7 +11,13 @@ import { Grid, GridItem } from "@strapi/design-system/Grid";
 import { TextInput } from "@strapi/design-system/TextInput";
 import { Textarea } from "@strapi/design-system/Textarea";
 import { Box } from "@strapi/design-system/Box";
-import { getSingleCourse } from "../../utils/apiCalls";
+import { Loader } from "@strapi/design-system/Loader";
+import { Flex } from "@strapi/design-system/Flex";
+import {
+  getSingleCourse,
+  updateCourse,
+  uploadFiles,
+} from "../../utils/apiCalls";
 import Editor from "../Editor";
 
 const CourseEditModal = ({
@@ -63,7 +69,7 @@ const CourseEditModal = ({
     setError({ ...error, description: "" });
   };
 
-  const handleUpdateCourse = () => {
+  const handleUpdateCourse = async () => {
     if (!title && !summary && !description) {
       setError({
         ...error,
@@ -93,7 +99,34 @@ const CourseEditModal = ({
         description: "Description is required",
       });
     } else {
-      handleClickUpdate(courseId, title, summary, description, files);
+      let imageId, videoId;
+      if (courseImage.length > 0) {
+        setUpload(true);
+        setUploadMessage("Uploading course image");
+        const response = await uploadFiles(courseImage);
+        imageId = response.data[0].id;
+      }
+      if (courseVideo.length > 0) {
+        setUpload(true);
+        setUploadMessage("Uploading course video");
+        const response = await uploadFiles(courseVideo);
+        videoId = response.data[0].id;
+      }
+      const response = await updateCourse(
+        courseId,
+        title,
+        summary,
+        description,
+        imageId,
+        videoId
+      );
+      if (response.data?.id) {
+        setUpload(false);
+        setUploadMessage("");
+
+        // call to close modal
+        handleClickUpdate();
+      }
     }
   };
 
@@ -163,6 +196,7 @@ const CourseEditModal = ({
                     type="file"
                     name="courseImage"
                     onChange={handleChange}
+                    accept="image/*"
                   />
                 </Box>
               </GridItem>
@@ -176,6 +210,7 @@ const CourseEditModal = ({
                     type="file"
                     name="courseVideo"
                     onChange={handleChange}
+                    accept="video/*"
                   />
                 </Box>
               </GridItem>
@@ -183,11 +218,26 @@ const CourseEditModal = ({
           </ModalBody>
           <ModalFooter
             startActions={
-              <Button onClick={handleClose} variant="tertiary">
+              <Button
+                onClick={handleClose}
+                variant="tertiary"
+                disabled={upload}
+              >
                 Cancel
               </Button>
             }
-            endActions={<Button onClick={handleUpdateCourse}>Update</Button>}
+            endActions={
+              upload ? (
+                <Flex justifyContent="center">
+                  <Loader small>Loading......</Loader>
+                  <Typography fontWeight="bold" textColor="primary600" as="h2">
+                    {uploadMessage ? uploadMessage : ""}
+                  </Typography>
+                </Flex>
+              ) : (
+                <Button onClick={handleUpdateCourse}>Update</Button>
+              )
+            }
           />
         </ModalLayout>
       )}

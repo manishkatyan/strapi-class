@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ModalLayout,
   ModalBody,
@@ -10,28 +10,47 @@ import { Button } from "@strapi/design-system/Button";
 import { Grid, GridItem } from "@strapi/design-system/Grid";
 import { TextInput } from "@strapi/design-system/TextInput";
 import { Box } from "@strapi/design-system/Box";
+import { Loader } from "@strapi/design-system/Loader";
+import { Flex } from "@strapi/design-system/Flex";
 import Editor from "../Editor";
+import { getLessonEdit, uploadFiles, updateLesson } from "../../utils/apiCalls";
 
 const EditLessonModal = ({
+  lessonId,
   isEditVisible,
   handleCloseEditLessonModal,
-  handleClickEditLesson,
+  handleClickUpdateLesson,
 }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [files, setFiles] = useState("");
+  const [readingMaterial, setReadingMaterial] = useState([]);
+  const [lessonVideo, setLessonVideo] = useState([]);
+  const [upload, setUpload] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState("");
   const [error, setError] = useState({
     title: "",
     description: "",
   });
+
+  useEffect(async () => {
+    if (lessonId) {
+      const response = await getLessonEdit(lessonId);
+      if (response.data?.id) {
+        setTitle(response.data?.title);
+        setDescription(response.data?.description);
+      }
+    }
+  }, [isEditVisible]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     if (name === "title") {
       setTitle(value);
       setError({ ...error, title: "" });
-    } else if (name === "files") {
-      setFiles(event.target.files);
+    } else if (name === "readingMaterial") {
+      setReadingMaterial(event.target.files);
+    } else if (name === "lessonVideo") {
+      setLessonVideo(event.target.files);
     }
   };
 
@@ -40,7 +59,7 @@ const EditLessonModal = ({
     setError({ ...error, description: "" });
   };
 
-  const handleEditLesson = () => {
+  const handleUpdateLesson = async () => {
     if (!title && !description) {
       setError({
         ...error,
@@ -60,10 +79,34 @@ const EditLessonModal = ({
         description: "Description is required",
       });
     } else {
-      // setTitle("");
-      // setSummary("");
-      // setDescription("");
-      // setFiles("");
+      let materialId, videoId;
+      if (readingMaterial.length > 0) {
+        setUpload(true);
+        setUploadMessage("Uploading reading material");
+        const response = await uploadFiles(readingMaterial);
+        materialId = response.data[0].id;
+      }
+      if (lessonVideo.length > 0) {
+        setUpload(true);
+        setUploadMessage("Uploading lesson video ");
+        const response = await uploadFiles(lessonVideo);
+        videoId = response.data[0].id;
+      }
+
+      const response = await updateLesson(
+        lessonId,
+        title,
+        description,
+        materialId,
+        videoId
+      );
+      if (response.data?.id) {
+        setUpload(false);
+        setUploadMessage("");
+
+        // call to close modal
+        handleClickUpdateLesson();
+      }
     }
   };
 
@@ -89,6 +132,7 @@ const EditLessonModal = ({
                   label="Title"
                   name="title"
                   onChange={handleChange}
+                  value={title}
                   error={error.title ? error.title : ""}
                   required
                 />
@@ -117,7 +161,8 @@ const EditLessonModal = ({
                 <Box paddingTop={3}>
                   <input
                     type="file"
-                    name="readingMaterials"
+                    name="readingMaterial"
+                    accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf"
                     onChange={handleChange}
                   />
                 </Box>
@@ -127,8 +172,20 @@ const EditLessonModal = ({
                   Video
                 </Typography>
                 <Box paddingTop={3}>
-                  <input type="file" name="files" onChange={handleChange} />
+                  <input
+                    type="file"
+                    name="lessonVideo"
+                    accept="video/*"
+                    onChange={handleChange}
+                  />
                 </Box>
+                {error.lessonVideo ? (
+                  <Typography variant="pi" textColor="danger700">
+                    {error.lessonVideo}
+                  </Typography>
+                ) : (
+                  ""
+                )}
               </GridItem>
             </Grid>
           </ModalBody>
@@ -139,9 +196,16 @@ const EditLessonModal = ({
               </Button>
             }
             endActions={
-              <>
-                <Button onClick={() => handleEditLesson}>aupdate</Button>
-              </>
+              upload ? (
+                <Flex justifyContent="center">
+                  <Loader small>Loading......</Loader>
+                  <Typography fontWeight="bold" textColor="primary600" as="h2">
+                    {uploadMessage ? uploadMessage : ""}
+                  </Typography>
+                </Flex>
+              ) : (
+                <Button onClick={handleUpdateLesson}>update</Button>
+              )
             }
           />
         </ModalLayout>

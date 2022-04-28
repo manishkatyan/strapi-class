@@ -26,7 +26,7 @@ import { getLesson } from "../../utils/apiCalls";
 
 const limit = 6;
 
-const LessonTable = ({ id, isVisible, isEditVisible, handleCourseEdit }) => {
+const LessonTable = ({ id, isVisible, isEditVisible, handleLessonEdit }) => {
   const { url } = useRouteMatch();
   const ROW_COUNT = 6;
   const COL_COUNT = 10;
@@ -171,7 +171,7 @@ const LessonTable = ({ id, isVisible, isEditVisible, handleCourseEdit }) => {
                   <Td>
                     <Flex>
                       <IconButton
-                        onClick={() => handleCourseEdit(data.id)}
+                        onClick={() => handleLessonEdit(data.id)}
                         label="Edit"
                         noBorder
                         icon={<Pencil />}
@@ -182,13 +182,6 @@ const LessonTable = ({ id, isVisible, isEditVisible, handleCourseEdit }) => {
                         noBorder
                         icon={<Trash />}
                       />
-                      {/* <Box paddingLeft={2}>
-                        <IconButton
-                          label="Embed Code"
-                          icon={<Gift />}
-                          onClick={() => setIsEmbedModal((prev) => !prev)}
-                        />
-                      </Box> */}
                     </Flex>
                   </Td>
                 </Tr>
