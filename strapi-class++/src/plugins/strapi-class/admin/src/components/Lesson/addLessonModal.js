@@ -84,13 +84,13 @@ const AddLessonModal = ({
       let materialId, videoId;
       if (readingMaterial.length > 0) {
         setUpload(true);
-        setUploadMessage("Uploading reading material");
+        setUploadMessage("Uploading Reading Material");
         const response = await uploadFiles(readingMaterial);
         materialId = response.data[0].id;
       }
       if (lessonVideo.length > 0) {
         setUpload(true);
-        setUploadMessage("Uploading lesson video ");
+        setUploadMessage("Uploading Lesson Video ");
         const response = await uploadFiles(lessonVideo);
         videoId = response.data[0].id;
       }

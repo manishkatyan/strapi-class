@@ -45,6 +45,7 @@ module.exports = ({ strapi }) => ({
       .query("plugin::strapi-class.cpp-lesson")
       .findOne({
         where: { id: lessonId },
+        populate: true,
       });
     ctx.body = response;
   },
@@ -83,5 +84,11 @@ module.exports = ({ strapi }) => ({
         data: updateData,
       });
     ctx.body = response;
+  },
+  deleteLesson: async (ctx) => {
+    const { id } = ctx.params;
+    await strapi
+      .query("plugin::strapi-class.cpp-lesson")
+      .delete({ where: { id: id } });
   },
 });

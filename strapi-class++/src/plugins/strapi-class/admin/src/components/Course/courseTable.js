@@ -22,8 +22,11 @@ import CarretDown from "@strapi/icons/CarretDown";
 import Plus from "@strapi/icons/Plus";
 import NumberList from "@strapi/icons/NumberList";
 import Gift from "@strapi/icons/Gift";
-import { getCourse } from "../../utils/apiCalls";
+import Eye from "@strapi/icons/Eye";
+import { getCourse, deleteCourse } from "../../utils/apiCalls";
 import EmbedCodeModal from "./embedCodeModal";
+import ConfirmDialog from "../ConfirmDialog";
+import AddLessonModal from "../Lesson/addLessonModal";
 
 const limit = 6;
 
@@ -44,6 +47,11 @@ const CourseTable = ({ isVisible, isEditVisible, handleCourseEdit }) => {
   const [orderByDate, setOrderByDate] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [isEmbedModal, setIsEmbedModal] = useState(false);
+  const [isConfirmModal, setIsConfirmModal] = useState(false);
+  const [courseIdToDelete, setCourseIdToDelete] = useState("");
+  const [courseIdToEmbed, setCourseIdToEmbed] = useState("");
+  const [isAddLessonModal, setIsAddLessonModal] = useState(false);
+  const [courseIdToAddLesson, setCourseIdToAddLesson] = useState("");
 
   const pageCount = Math.ceil(totalCount / limit);
 
@@ -62,7 +70,14 @@ const CourseTable = ({ isVisible, isEditVisible, handleCourseEdit }) => {
       setTableData(response.data.res);
       setTotalCount(response.data.count);
     }
-  }, [isVisible, isEditVisible, sortAscendingTitle, sortAscendingDate, offset]);
+  }, [
+    isVisible,
+    isEditVisible,
+    sortAscendingTitle,
+    sortAscendingDate,
+    offset,
+    isConfirmModal,
+  ]);
 
   const handleSortTitleCarretUp = () => {
     setSortAscendingTitle(false);
@@ -97,7 +112,7 @@ const CourseTable = ({ isVisible, isEditVisible, handleCourseEdit }) => {
     // get the time as a string
     const createdTime = dates.toLocaleTimeString();
     const dateTime = (
-      <Badge active>
+      <Badge>
         {createdDate}&nbsp;&nbsp;&nbsp;{createdTime}
       </Badge>
     );
@@ -106,11 +121,28 @@ const CourseTable = ({ isVisible, isEditVisible, handleCourseEdit }) => {
 
   const handleCloseModal = () => setIsEmbedModal((prev) => !prev);
 
+  const handleCloseDialog = () => setIsConfirmModal((prev) => !prev);
+
+  const handleCloseLessonModal = () => setIsAddLessonModal((prev) => !prev);
+  const handleAddLesson = () => setIsAddLessonModal((prev) => !prev);
+
+  const handleDeleteCourse = async (id) => {
+    await deleteCourse(id);
+    setIsConfirmModal((prev) => !prev);
+  };
+
   return (
     <>
       <EmbedCodeModal
+        id={courseIdToEmbed}
         isVisible={isEmbedModal}
         handleCloseEmbedModal={handleCloseModal}
+      />
+      <AddLessonModal
+        courseId={courseIdToAddLesson}
+        isVisible={isAddLessonModal}
+        handleCloseAddLessonModal={handleCloseLessonModal}
+        handleClickAddLesson={handleAddLesson}
       />
       <Box padding={8} background="neutral100">
         <Table colCount={COL_COUNT} rowCount={ROW_COUNT}>
@@ -179,9 +211,21 @@ const CourseTable = ({ isVisible, isEditVisible, handleCourseEdit }) => {
                       variant="secondary"
                       size="S"
                       endIcon={<Plus />}
+                      onClick={() => {
+                        setCourseIdToAddLesson(data.id);
+                        setIsAddLessonModal((prev) => !prev);
+                      }}
+                    >
+                      Add
+                    </LinkButton>{" "}
+                    &nbsp;
+                    <LinkButton
+                      variant="secondary"
+                      size="S"
+                      endIcon={<NumberList />}
                       to={`strapi-class/lessons/${data.id}/${data.title}`}
                     >
-                      Add Lessons
+                      List
                     </LinkButton>
                   </Td>
                   <Td>
@@ -192,24 +236,43 @@ const CourseTable = ({ isVisible, isEditVisible, handleCourseEdit }) => {
                   <Td>
                     <Flex>
                       <IconButton
-                        onClick={() => handleCourseEdit(data.id)}
-                        label="Edit"
-                        noBorder
-                        icon={<Pencil />}
+                        label="preview Course"
+                        icon={<Eye />}
+                        onClick={() => {
+                          setCourseIdToEmbed(data.id);
+                          setIsEmbedModal((prev) => !prev);
+                        }}
                       />
-                      <IconButton
-                        onClick={() => console.log("delete")}
-                        label="Delete"
-                        noBorder
-                        icon={<Trash />}
-                      />
-                      {/* <Box paddingLeft={2}>
+                      <Box paddingLeft={2}>
                         <IconButton
-                          label="Embed Code"
-                          icon={<Gift />}
-                          onClick={() => setIsEmbedModal((prev) => !prev)}
+                          onClick={() => handleCourseEdit(data.id)}
+                          label="Edit"
+                          // noBorder
+                          icon={<Pencil />}
                         />
-                      </Box> */}
+                      </Box>
+
+                      <Box paddingLeft={2}>
+                        <IconButton
+                          onClick={() => {
+                            setCourseIdToDelete(data.id);
+                            setIsConfirmModal((prev) => !prev);
+                          }}
+                          label="Delete"
+                          // noBorder
+                          icon={<Trash />}
+                          data-toggle="dialog"
+                          data-target={`#delete_${data.id}`}
+                        />
+                      </Box>
+                      <ConfirmDialog
+                        dialogId={`delete_${courseIdToDelete}`}
+                        isVisible={isConfirmModal}
+                        handleClose={handleCloseDialog}
+                        handleDelete={() =>
+                          handleDeleteCourse(courseIdToDelete)
+                        }
+                      />
                     </Flex>
                   </Td>
                 </Tr>

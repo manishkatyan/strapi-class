@@ -84,13 +84,13 @@ const CourseCreateModal = ({ isVisible, handleClose, handleClickSave }) => {
       let imageId, videoId;
       if (courseImage.length > 0) {
         setUpload(true);
-        setUploadMessage("Uploading course image");
+        setUploadMessage("Uploading Course Image");
         const response = await uploadFiles(courseImage);
         imageId = response.data[0].id;
       }
       if (courseVideo.length > 0) {
         setUpload(true);
-        setUploadMessage("Uploading course video");
+        setUploadMessage("Uploading Course Video");
         const response = await uploadFiles(courseVideo);
         videoId = response.data[0].id;
       }

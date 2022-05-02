@@ -19,14 +19,17 @@ import Pencil from "@strapi/icons/Pencil";
 import Trash from "@strapi/icons/Trash";
 import CarretUp from "@strapi/icons/CarretUp";
 import CarretDown from "@strapi/icons/CarretDown";
+import Eye from "@strapi/icons/Eye";
 import Plus from "@strapi/icons/Plus";
 import NumberList from "@strapi/icons/NumberList";
 import Gift from "@strapi/icons/Gift";
-import { getLesson } from "../../utils/apiCalls";
+import { getLesson, deleteLesson } from "../../utils/apiCalls";
+import ConfirmDialog from "../ConfirmDialog";
+import ViewModal from "./viewModal";
 
 const limit = 6;
 
-const LessonTable = ({ id, isVisible, isEditVisible, handleLessonEdit }) => {
+const LessonTable = ({ id, isEditVisible, handleLessonEdit, courseName }) => {
   const { url } = useRouteMatch();
   const ROW_COUNT = 6;
   const COL_COUNT = 10;
@@ -42,6 +45,10 @@ const LessonTable = ({ id, isVisible, isEditVisible, handleLessonEdit }) => {
   const [orderByTitle, setOrderByTitle] = useState(true);
   const [orderByDate, setOrderByDate] = useState(false);
   const [tableData, setTableData] = useState([]);
+  const [lessonIdToView, setLessonIdToView] = useState("");
+  const [isViewModal, setIsViewModal] = useState(false);
+  const [isConfirmModal, setIsConfirmModal] = useState(false);
+  const [lessonIdToDelete, setLessonIdToDelete] = useState("");
 
   const pageCount = Math.ceil(totalCount / limit);
 
@@ -61,7 +68,13 @@ const LessonTable = ({ id, isVisible, isEditVisible, handleLessonEdit }) => {
       setTableData(response.data.res);
       setTotalCount(response.data.count);
     }
-  }, [isVisible, isEditVisible, sortAscendingTitle, sortAscendingDate, offset]);
+  }, [
+    isEditVisible,
+    sortAscendingTitle,
+    sortAscendingDate,
+    offset,
+    isConfirmModal,
+  ]);
 
   const handleSortTitleCarretUp = () => {
     setSortAscendingTitle(false);
@@ -96,15 +109,31 @@ const LessonTable = ({ id, isVisible, isEditVisible, handleLessonEdit }) => {
     // get the time as a string
     const createdTime = dates.toLocaleTimeString();
     const dateTime = (
-      <Badge active>
+      <Badge>
         {createdDate}&nbsp;&nbsp;&nbsp;{createdTime}
       </Badge>
     );
     return dateTime;
   };
 
+  const handleCloseViewModal = () => setIsViewModal((prev) => !prev);
+
+  const handleDeleteLesson = async (id) => {
+    await deleteLesson(id);
+    setIsConfirmModal((prev) => !prev);
+  };
+
+  const handleCloseDialog = () => setIsConfirmModal((prev) => !prev);
+
   return (
     <>
+      <ViewModal
+        id={lessonIdToView}
+        isVisible={isViewModal}
+        handleCloseViewModal={handleCloseViewModal}
+        courseName={courseName}
+      />
+
       <Box padding={8} background="neutral100">
         <Table colCount={COL_COUNT} rowCount={ROW_COUNT}>
           <Thead>
@@ -171,16 +200,41 @@ const LessonTable = ({ id, isVisible, isEditVisible, handleLessonEdit }) => {
                   <Td>
                     <Flex>
                       <IconButton
-                        onClick={() => handleLessonEdit(data.id)}
-                        label="Edit"
-                        noBorder
-                        icon={<Pencil />}
+                        label="preview Course"
+                        icon={<Eye />}
+                        onClick={() => {
+                          setLessonIdToView(data.id);
+                          setIsViewModal((prev) => !prev);
+                        }}
                       />
-                      <IconButton
-                        onClick={() => console.log("delete")}
-                        label="Delete"
-                        noBorder
-                        icon={<Trash />}
+                      <Box paddingLeft={2}>
+                        <IconButton
+                          onClick={() => handleLessonEdit(data.id)}
+                          label="Edit"
+                          icon={<Pencil />}
+                        />
+                      </Box>
+
+                      <Box paddingLeft={2}>
+                        <IconButton
+                          onClick={() => {
+                            setLessonIdToDelete(data.id);
+                            setIsConfirmModal((prev) => !prev);
+                          }}
+                          label="Delete"
+                          // noBorder
+                          icon={<Trash />}
+                          data-toggle="dialog"
+                          data-target={`#delete_${data.id}`}
+                        />
+                      </Box>
+                      <ConfirmDialog
+                        dialogId={`delete_${lessonIdToDelete}`}
+                        isVisible={isConfirmModal}
+                        handleClose={handleCloseDialog}
+                        handleDelete={() =>
+                          handleDeleteLesson(lessonIdToDelete)
+                        }
                       />
                     </Flex>
                   </Td>

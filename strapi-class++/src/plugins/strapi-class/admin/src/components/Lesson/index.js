@@ -16,13 +16,11 @@ import EditLessonModal from "./EditLessonModal";
 const Lessons = () => {
   const { courseId, courseName } = useParams();
 
-  const [isAddLessonModal, setIsAddLessonModal] = useState(false);
   const [isEditLessonModal, setIsEditLessonModal] = useState(false);
   const [lessonId, setLessonId] = useState("");
 
-  const handleCloseModal = () => setIsAddLessonModal((prev) => !prev);
   const handleCloseEditModal = () => setIsEditLessonModal((prev) => !prev);
-  const handleAddLesson = () => setIsAddLessonModal((prev) => !prev);
+
   const handleLessonEditModal = (id) => {
     setLessonId(id);
     setIsEditLessonModal((prev) => !prev);
@@ -51,17 +49,12 @@ const Lessons = () => {
       <Box padding={3}>
         <Divider />
       </Box>
-      <Flex justifyContent="end" paddingRight={10}>
+      {/* <Flex justifyContent="end" paddingRight={10}>
         <Button onClick={() => setIsAddLessonModal((prev) => !prev)}>
           Add Lesson
         </Button>
-      </Flex>
-      <AddLessonModal
-        courseId={courseId}
-        isVisible={isAddLessonModal}
-        handleCloseAddLessonModal={handleCloseModal}
-        handleClickAddLesson={handleAddLesson}
-      />
+      </Flex> */}
+
       <EditLessonModal
         lessonId={lessonId}
         isEditVisible={isEditLessonModal}
@@ -70,9 +63,9 @@ const Lessons = () => {
       />
       <LessonTable
         id={courseId}
-        isVisible={isAddLessonModal}
         isEditVisible={isEditLessonModal}
         handleLessonEdit={(lessonId) => handleLessonEditModal(lessonId)}
+        courseName={courseName}
       />
     </>
   );

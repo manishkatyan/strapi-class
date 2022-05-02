@@ -45,6 +45,7 @@ module.exports = ({ strapi }) => ({
       .query("plugin::strapi-class.cpp-course")
       .findOne({
         where: { id: id },
+        populate: true,
       });
     ctx.body = response;
   },
@@ -88,5 +89,20 @@ module.exports = ({ strapi }) => ({
         data: updateData,
       });
     ctx.body = response;
+  },
+  deleteCourse: async (ctx) => {
+    const { id } = ctx.params;
+    const lessons = await strapi
+      .query("plugin::strapi-class.cpp-lesson")
+      .findMany({ where: { course: id } });
+    lessons.forEach(async (lesson) => {
+      await strapi
+        .query("plugin::strapi-class.cpp-lesson")
+        .delete({ where: { id: lesson.id } });
+    });
+
+    await strapi
+      .query("plugin::strapi-class.cpp-course")
+      .delete({ where: { id } });
   },
 });

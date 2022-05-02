@@ -13,7 +13,11 @@ import { Box } from "@strapi/design-system/Box";
 import { Loader } from "@strapi/design-system/Loader";
 import { Flex } from "@strapi/design-system/Flex";
 import Editor from "../Editor";
-import { getLessonEdit, uploadFiles, updateLesson } from "../../utils/apiCalls";
+import {
+  getSingleLesson,
+  uploadFiles,
+  updateLesson,
+} from "../../utils/apiCalls";
 
 const EditLessonModal = ({
   lessonId,
@@ -34,7 +38,7 @@ const EditLessonModal = ({
 
   useEffect(async () => {
     if (lessonId) {
-      const response = await getLessonEdit(lessonId);
+      const response = await getSingleLesson(lessonId);
       if (response.data?.id) {
         setTitle(response.data?.title);
         setDescription(response.data?.description);
@@ -82,13 +86,13 @@ const EditLessonModal = ({
       let materialId, videoId;
       if (readingMaterial.length > 0) {
         setUpload(true);
-        setUploadMessage("Uploading reading material");
+        setUploadMessage("Uploading Reading Material");
         const response = await uploadFiles(readingMaterial);
         materialId = response.data[0].id;
       }
       if (lessonVideo.length > 0) {
         setUpload(true);
-        setUploadMessage("Uploading lesson video ");
+        setUploadMessage("Uploading Lesson Video ");
         const response = await uploadFiles(lessonVideo);
         videoId = response.data[0].id;
       }

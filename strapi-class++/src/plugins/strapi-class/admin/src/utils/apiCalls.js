@@ -49,10 +49,8 @@ export async function updateCourse(
   return response;
 }
 
-export async function getLesson(id, offset, limit, sort, order) {
-  const response = await axios.get(
-    `/strapi-class/getLessons/${id}/${offset}/${limit}/${sort}/${order}`
-  );
+export async function deleteCourse(id) {
+  const response = await axios.delete(`/strapi-class/deleteCourse/${id}`);
   return response;
 }
 
@@ -60,6 +58,13 @@ export async function uploadFiles(files) {
   const formDocument = new FormData();
   formDocument.append("files", files[0]);
   const response = await axios.post(`/upload`, formDocument);
+  return response;
+}
+
+export async function getLesson(id, offset, limit, sort, order) {
+  const response = await axios.get(
+    `/strapi-class/getLessons/${id}/${offset}/${limit}/${sort}/${order}`
+  );
   return response;
 }
 
@@ -80,7 +85,7 @@ export async function addLesson(
   return response;
 }
 
-export async function getLessonEdit(lessonId) {
+export async function getSingleLesson(lessonId) {
   const response = await axios.get(`/strapi-class/getSingleLesson/${lessonId}`);
   return response;
 }
@@ -99,5 +104,10 @@ export async function updateLesson(
     materialId,
     videoId,
   });
+  return response;
+}
+
+export async function deleteLesson(id) {
+  const response = await axios.delete(`/strapi-class/deleteLesson/${id}`);
   return response;
 }

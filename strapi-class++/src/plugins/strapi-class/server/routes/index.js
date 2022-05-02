@@ -40,6 +40,14 @@ module.exports = [
     },
   },
   {
+    method: "DELETE",
+    path: "/deleteCourse/:id",
+    handler: "courseController.deleteCourse",
+    config: {
+      auth: false,
+    },
+  },
+  {
     method: "GET",
     path: "/getLessons/:id/:offset/:limit/:sort/:order",
     handler: "lessonController.getLessons",
@@ -67,6 +75,14 @@ module.exports = [
     method: "PUT",
     path: "/updateLesson",
     handler: "lessonController.updateLesson",
+    config: {
+      auth: false,
+    },
+  },
+  {
+    method: "DELETE",
+    path: "/deleteLesson/:id",
+    handler: "lessonController.deleteLesson",
     config: {
       auth: false,
     },

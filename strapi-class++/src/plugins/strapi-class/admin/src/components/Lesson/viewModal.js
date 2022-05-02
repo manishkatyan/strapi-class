@@ -32,35 +32,35 @@ import {
   CardSubtitle,
 } from "@strapi/design-system/Card";
 
-import { singleCourseResponse } from "./constant";
+// import { singleCourseResponse } from "./constant";
 import Editor from "./../Editor";
-import { getSingleCourse } from "../../utils/apiCalls";
+import { getSingleLesson } from "../../utils/apiCalls";
 
-const EmbedCodeModal = ({ id, isVisible, handleCloseEmbedModal }) => {
+const ViewModal = ({ id, isVisible, handleCloseViewModal, courseName }) => {
   const [expandCourse, setExpandCourse] = useState(false);
   const [title, setTitle] = useState("");
-  const [summary, setSummary] = useState("");
+
   const [description, setDescription] = useState("");
-  const [courseVideo, setCourseVideo] = useState("");
-  const [courseImage, setCourseImage] = useState("");
+  const [lessonVideo, setLessonVideo] = useState("");
+  const [readingMaterial, setReadingMaterial] = useState("");
 
   useEffect(async () => {
     if (id) {
-      const response = await getSingleCourse(id);
-
+      const response = await getSingleLesson(id);
+      console.log(response);
       if (response.data?.id) {
         setTitle(response.data?.title);
-        setSummary(response.data?.summary);
+
         setDescription(response.data?.description);
-        setCourseImage(
-          response.data?.image?.id
+        setReadingMaterial(
+          response.data?.readingMaterial?.id
             ? {
-                name: response.data?.image.name,
-                url: response.data?.image.formats.thumbnail.url,
+                name: response.data?.readingMaterial.name,
+                url: response.data?.readingMaterial.url,
               }
             : ""
         );
-        setCourseVideo(
+        setLessonVideo(
           response.data?.video?.id
             ? { name: response.data?.video.name, url: response.data?.video.url }
             : ""
@@ -72,7 +72,7 @@ const EmbedCodeModal = ({ id, isVisible, handleCloseEmbedModal }) => {
   return (
     <>
       {isVisible && (
-        <ModalLayout onClose={handleCloseEmbedModal} labelledBy="title">
+        <ModalLayout onClose={handleCloseViewModal} labelledBy="title">
           <ModalHeader>
             <Box>
               <Typography
@@ -98,15 +98,6 @@ const EmbedCodeModal = ({ id, isVisible, handleCloseEmbedModal }) => {
                   />
                 </GridItem>
                 <GridItem col={12}>
-                  <Textarea
-                    placeholder="Summary of the course"
-                    label="Summary"
-                    name="summary"
-                  >
-                    {summary}
-                  </Textarea>
-                </GridItem>
-                <GridItem col={12}>
                   <Typography variant="pi" fontWeight="bold">
                     Description
                   </Typography>
@@ -117,25 +108,24 @@ const EmbedCodeModal = ({ id, isVisible, handleCloseEmbedModal }) => {
                   />
                 </GridItem>
                 <GridItem col={6}>
-                  {courseImage ? (
+                  {readingMaterial ? (
                     <>
-                      <Typography variant="pi" fontWeight="bold">
-                        Course Image
-                      </Typography>
+                      <Box paddingBottom={5}>
+                        <Typography variant="pi" fontWeight="bold">
+                          Reading Material
+                        </Typography>
+                      </Box>
                       <Card
                         style={{
                           width: "240px",
                         }}
-                        id="second"
                       >
-                        <CardHeader>
-                          <CardAsset src={courseImage.url} />
-                        </CardHeader>
                         <CardBody>
-                          <CardContent>
-                            <CardTitle>{courseImage.name}</CardTitle>
+                          <CardContent paddingLeft={2}>
+                            <CardTitle>{readingMaterial.name}</CardTitle>
+                            <CardSubtitle>{courseName}</CardSubtitle>
                           </CardContent>
-                          <CardBadge>Image</CardBadge>
+                          <CardBadge>Doc</CardBadge>
                         </CardBody>
                       </Card>
                     </>
@@ -144,7 +134,7 @@ const EmbedCodeModal = ({ id, isVisible, handleCloseEmbedModal }) => {
                   )}
                 </GridItem>
                 <GridItem col={6}>
-                  {courseVideo ? (
+                  {lessonVideo ? (
                     <>
                       <Typography variant="pi" fontWeight="bold">
                         Course Video
@@ -157,14 +147,14 @@ const EmbedCodeModal = ({ id, isVisible, handleCloseEmbedModal }) => {
                       >
                         <CardHeader>
                           <video width="240" height="150" controls>
-                            <source src={courseVideo.url} type="video/mp4" />
-                            <source src={courseVideo.url} type="video/ogg" />
+                            <source src={lessonVideo.url} type="video/mp4" />
+                            <source src={lessonVideo.url} type="video/ogg" />
                             Your browser does not support the video tag.
                           </video>
                         </CardHeader>
                         <CardBody>
                           <CardContent>
-                            <CardTitle>{courseVideo.name}</CardTitle>
+                            <CardTitle>{lessonVideo.name}</CardTitle>
                           </CardContent>
                           <CardBadge>Video</CardBadge>
                         </CardBody>
@@ -176,7 +166,7 @@ const EmbedCodeModal = ({ id, isVisible, handleCloseEmbedModal }) => {
                 </GridItem>
               </Grid>
             </Box>
-            <Box paddingTop={5}>
+            {/* <Box paddingTop={5}>
               <Typography variant="beta">
                 Embed course to your Front-End Application
               </Typography>
@@ -216,17 +206,17 @@ const EmbedCodeModal = ({ id, isVisible, handleCloseEmbedModal }) => {
                   </Box>
                 </AccordionContent>
               </Accordion>
-            </Box>
+            </Box> */}
           </ModalBody>
           <ModalFooter
             startActions={
-              <Button onClick={handleCloseEmbedModal} variant="tertiary">
+              <Button onClick={handleCloseViewModal} variant="tertiary">
                 Cancel
               </Button>
             }
             endActions={
               <>
-                <Button onClick={handleCloseEmbedModal}>Finish</Button>
+                <Button onClick={handleCloseViewModal}>Finish</Button>
               </>
             }
           />
@@ -236,4 +226,4 @@ const EmbedCodeModal = ({ id, isVisible, handleCloseEmbedModal }) => {
   );
 };
 
-export default EmbedCodeModal;
+export default ViewModal;
