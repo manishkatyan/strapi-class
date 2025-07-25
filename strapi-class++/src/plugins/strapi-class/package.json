@@ -10,7 +10,7 @@
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^34.0.0",
     "@ckeditor/ckeditor5-react": "^5.0.0",
-    "form-data": "^4.0.0"
+    "form-data": "^4.0.4"
   },
   "author": {
     "name": "A Strapi developer"
